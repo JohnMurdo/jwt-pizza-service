@@ -262,7 +262,7 @@ class DB {
     }
   }
 
-  async createStore(franchiseId, store) {
+async createStore(franchiseId, store) {
     const connection = await this.getConnection();
     try {
       const insertResult = await this.query(connection, `INSERT INTO store (franchiseId, name) VALUES (?, ?)`, [franchiseId, store.name]);

@@ -1,9 +1,10 @@
+process.env.TEST_DB_NAME = 'pizza_test';
+
 const request = require('supertest');
 const mysql = require('mysql2/promise');
 const config = require('../src/config.js');
 
-const testDatabaseName = process.env.TEST_DB_NAME || 'pizza_test';
-const originalDatabaseName = config.db.connection.database;
+const testDatabaseName = config.db.connection.database;
 
 let app;
 let DB;
@@ -24,7 +25,6 @@ async function resetDatabase() {
   const dbModel = require('../src/database/dbModel.js');
   DB = db;
 
-  config.db.connection.database = testDatabaseName;
   await DB.initialized;
 
   const connection = await mysql.createConnection({
@@ -65,17 +65,12 @@ const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
 let testUserAuthToken;
 
 beforeAll(async () => {
-  config.db.connection.database = testDatabaseName;
   await resetDatabase();
   app = require('../src/service');
 
   testUser.email = `${Math.random().toString(36).substring(2, 12)}@test.com`;
   const registerRes = await request(app).post('/api/auth').send(testUser);
   testUserAuthToken = registerRes.body.token;
-});
-
-afterAll(() => {
-  config.db.connection.database = originalDatabaseName;
 });
 
 test('login', async () => {
